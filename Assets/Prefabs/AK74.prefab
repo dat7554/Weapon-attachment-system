@@ -811,18 +811,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
   displayName: AK74
-  partSlotList:
+  attachmentSlotList:
   - partType: 0
     attachPoint: {fileID: 8364484230934417987}
-    prefabs:
-    - {fileID: 1547548502539076, guid: 75aeffeed5a736f46afbef3a42e93fab, type: 3}
-    - {fileID: 1888391163116910, guid: cb825447b7c1ef442a049949c3f95ba7, type: 3}
+    acceptedWeaponPartSOList:
+    - {fileID: 11400000, guid: 6e1ac5a7cd6df94499c439a4ab2e9f44, type: 2}
+    - {fileID: 11400000, guid: f9731e9685a2ea448bf5e29e2ced1933, type: 2}
     currentIndex: 0
     spawnedPart: {fileID: 0}
   - partType: 1
     attachPoint: {fileID: 93658967990982133}
-    prefabs:
-    - {fileID: 1461378829341170, guid: 0c4a58b408c72d141bb4ae5633ef3744, type: 3}
+    acceptedWeaponPartSOList:
+    - {fileID: 11400000, guid: bb1ae589d9ace4243a7eb7efa239cc35, type: 2}
     currentIndex: 0
     spawnedPart: {fileID: 0}
 --- !u!114 &6443786175640614479

@@ -11,27 +11,27 @@ public class Weapon : MonoBehaviour
     }
 
     [Serializable]
-    public class PartSlot
+    public class WeaponAttachmentSlot
     {
         public PartType partType;
         public Transform attachPoint;
-        public List<GameObject> prefabs;
+        public List<WeaponPartSO> acceptedWeaponPartSOList;
         
         [HideInInspector] public int currentIndex;
         [HideInInspector] public GameObject spawnedPart;
     }
     
     [SerializeField] private string displayName;
-    [SerializeField] private List<PartSlot> partSlotList;
+    [SerializeField] private List<WeaponAttachmentSlot> attachmentSlotList;
 
-    private readonly Dictionary<PartType, PartSlot> _attachedPartsDict = new();
+    private readonly Dictionary<PartType, WeaponAttachmentSlot> _attachmentSlotDict = new();
 
     private void Awake()
     {
-        foreach (var partSlot in partSlotList)
+        foreach (var attachmentSlot in attachmentSlotList)
         {
-            _attachedPartsDict[partSlot.partType] = partSlot;
-            partSlot.currentIndex = -1;
+            _attachmentSlotDict[attachmentSlot.partType] = attachmentSlot;
+            attachmentSlot.currentIndex = -1;
         }
     }
     
@@ -39,27 +39,47 @@ public class Weapon : MonoBehaviour
 
     public void SetPart(PartType partType)
     {
-        if (!_attachedPartsDict.TryGetValue(partType, out var partSlot))
+        if (!_attachmentSlotDict.TryGetValue(partType, out var attachmentSlot))
         {
-            Debug.LogWarning($"No part slot with type {partType} found");
+            Debug.LogWarning($"No attachment slot with type {partType} found");
             return;
         }
         
-        if (partSlot.spawnedPart != null)
+        if (attachmentSlot.spawnedPart != null)
         {
-            Destroy(partSlot.spawnedPart);
-            partSlot.spawnedPart = null;
+            Destroy(attachmentSlot.spawnedPart);
+            attachmentSlot.spawnedPart = null;
         }
 
-        partSlot.currentIndex = WeaponAttachmentSystem.Instance.GetNextIndex
+        attachmentSlot.currentIndex = WeaponAttachmentSystem.Instance.GetNextIndex
             (
-                partSlot.currentIndex, _attachedPartsDict[partType].prefabs.Count
+                attachmentSlot.currentIndex, _attachmentSlotDict[partType].acceptedWeaponPartSOList.Count
             );
         
-        if (partSlot.currentIndex == -1) return;
+        if (attachmentSlot.currentIndex == -1)
+        {
+            Debug.LogWarning($"Current weapon has no accepted weapon part with type {partType}");
+            return;
+        }
+
+        WeaponPartSO weaponPartS0 = attachmentSlot.acceptedWeaponPartSOList[attachmentSlot.currentIndex];
+        attachmentSlot.spawnedPart = Instantiate(weaponPartS0.prefab, attachmentSlot.attachPoint);
+
+        if (weaponPartS0.weaponOffsets.Count > 0)
+        {
+            foreach (var weaponOffsetEntry in weaponPartS0.weaponOffsets)
+            {
+                if (weaponOffsetEntry.weapon.GetDisplayName() == displayName)
+                {
+                    attachmentSlot.spawnedPart.transform.localPosition = weaponOffsetEntry.offset;
+                }
+            }
+        }
+        else
+        {
+            attachmentSlot.spawnedPart.transform.localPosition = Vector3.zero;
+        }
         
-        partSlot.spawnedPart = Instantiate(partSlot.prefabs[partSlot.currentIndex], partSlot.attachPoint);
-        partSlot.spawnedPart.transform.localPosition = Vector3.zero;
-        partSlot.spawnedPart.transform.localRotation = Quaternion.identity;
+        attachmentSlot.spawnedPart.transform.localRotation = Quaternion.identity;
     }
 }

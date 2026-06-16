@@ -352,20 +352,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
   displayName: M4
-  partSlotList:
+  attachmentSlotList:
   - partType: 0
     attachPoint: {fileID: 9165717621577573689}
-    prefabs:
-    - {fileID: 643603752728683592, guid: 47b19e4b89cd0ec42a88853ebfacf42f, type: 3}
-    - {fileID: 1547548502539076, guid: 75aeffeed5a736f46afbef3a42e93fab, type: 3}
-    - {fileID: 1888391163116910, guid: cb825447b7c1ef442a049949c3f95ba7, type: 3}
-    - {fileID: 1378609178869200, guid: 49535f27af2648646a94c1f9918737d6, type: 3}
+    acceptedWeaponPartSOList:
+    - {fileID: 11400000, guid: 0883952a2fe065f478b33bda0f69710e, type: 2}
+    - {fileID: 11400000, guid: 6e1ac5a7cd6df94499c439a4ab2e9f44, type: 2}
+    - {fileID: 11400000, guid: f9731e9685a2ea448bf5e29e2ced1933, type: 2}
+    - {fileID: 11400000, guid: 0ad49e10e2bc3654ab4d6acf8b16825e, type: 2}
     currentIndex: 0
     spawnedPart: {fileID: 0}
   - partType: 1
     attachPoint: {fileID: 7555666362100825097}
-    prefabs:
-    - {fileID: 1461378829341170, guid: 0c4a58b408c72d141bb4ae5633ef3744, type: 3}
+    acceptedWeaponPartSOList:
+    - {fileID: 11400000, guid: bb1ae589d9ace4243a7eb7efa239cc35, type: 2}
     currentIndex: 0
     spawnedPart: {fileID: 0}
 --- !u!114 &6370303005321917236
