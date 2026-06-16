@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class WeaponBody : MonoBehaviour
+public class Weapon : MonoBehaviour
 {
     public enum PartType
     {
@@ -22,6 +21,7 @@ public class WeaponBody : MonoBehaviour
         [HideInInspector] public GameObject spawnedPart;
     }
     
+    [SerializeField] private string displayName;
     [SerializeField] private List<PartSlot> partSlotList;
 
     private readonly Dictionary<PartType, PartSlot> _attachedPartsDict = new();
@@ -34,6 +34,8 @@ public class WeaponBody : MonoBehaviour
             partSlot.currentIndex = -1;
         }
     }
+    
+    public string GetDisplayName() => displayName;
 
     public void SetPart(PartType partType)
     {

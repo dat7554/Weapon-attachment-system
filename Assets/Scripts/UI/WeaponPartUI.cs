@@ -8,7 +8,7 @@ public class WeaponPartUI : MonoBehaviour
     [Serializable]
     private class WeaponPartButton
     {
-        public WeaponBody.PartType partType;
+        public Weapon.PartType partType;
         public Button button;
     }
 
@@ -20,7 +20,7 @@ public class WeaponPartUI : MonoBehaviour
         {
             weaponPartButton.button.onClick.AddListener
                 (
-                    () => WeaponAttachmentSystem.Instance.SelectAttachment(weaponPartButton.partType)
+                    () => WeaponAttachmentSystem.Instance.SetPart(weaponPartButton.partType)
                 );
         }
     }

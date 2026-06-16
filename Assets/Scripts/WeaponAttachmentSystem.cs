@@ -1,11 +1,16 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class WeaponAttachmentSystem : MonoBehaviour
 {
     public static WeaponAttachmentSystem Instance;
     
-    [SerializeField] private WeaponBody weaponBody;
+    [SerializeField] private List<Weapon> weaponBodyList;
+    [SerializeField] private Weapon currentWeapon;
+
+    private Coroutine _rotateWeaponToOriginalCoroutine;
     
     private void Awake()
     {
@@ -15,18 +20,39 @@ public class WeaponAttachmentSystem : MonoBehaviour
         }
         
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+    }
+
+    public List<Weapon> GetWeaponBodyList => weaponBodyList;
+    public Weapon GetCurrentWeapon => currentWeapon;
+
+    public void SelectWeapon(Weapon weapon)
+    {
+        if (weapon.GetDisplayName() == currentWeapon.GetDisplayName())
+        {
+            if (_rotateWeaponToOriginalCoroutine == null)
+            {
+                _rotateWeaponToOriginalCoroutine = StartCoroutine(RotateWeaponToOriginalRoutine());
+            }
+            return;
+        }
+        
+        Weapon spawnedWeapon = Instantiate(weapon, currentWeapon.transform.parent);
+        spawnedWeapon.transform.localPosition = currentWeapon.transform.localPosition;
+        spawnedWeapon.transform.localRotation = Quaternion.identity;
+        
+        Destroy(currentWeapon.gameObject);
+        currentWeapon = spawnedWeapon;
     }
     
-    public void SelectAttachment(WeaponBody.PartType partType)
+    public void SetPart(Weapon.PartType partType)
     {
         switch (partType)
         {
-            case WeaponBody.PartType.Scope:
-                weaponBody.SetPart(WeaponBody.PartType.Scope);
+            case Weapon.PartType.Scope:
+                currentWeapon.SetPart(Weapon.PartType.Scope);
                 break;
-            case WeaponBody.PartType.Handle:
-                weaponBody.SetPart(WeaponBody.PartType.Handle);
+            case Weapon.PartType.Handle:
+                currentWeapon.SetPart(Weapon.PartType.Handle);
                 break;
         }
     }
@@ -46,5 +72,31 @@ public class WeaponAttachmentSystem : MonoBehaviour
         }
         
         return currentIndex + 1;
+    }
+
+    private IEnumerator RotateWeaponToOriginalRoutine()
+    {
+        float rotateSpeed = 5f;
+        while (Quaternion.Angle(currentWeapon.transform.localRotation, Quaternion.identity) > 1f)
+        {
+            if (Input.GetMouseButton(0))
+            {
+                _rotateWeaponToOriginalCoroutine = null;
+                yield break;
+            }
+            
+            currentWeapon.transform.localRotation = Quaternion.Slerp
+                (
+                    currentWeapon.transform.localRotation, 
+                    Quaternion.identity, 
+                    Time.deltaTime * rotateSpeed
+                );
+            
+            yield return null;
+        }
+
+        currentWeapon.transform.localRotation = Quaternion.identity;
+
+        _rotateWeaponToOriginalCoroutine = null;
     }
 }
