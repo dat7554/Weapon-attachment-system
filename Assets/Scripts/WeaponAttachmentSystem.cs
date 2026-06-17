@@ -6,11 +6,14 @@ using UnityEngine;
 public class WeaponAttachmentSystem : MonoBehaviour
 {
     public static WeaponAttachmentSystem Instance;
+
+    public event Action OnWeaponModified;
     
     [SerializeField] private List<Weapon> weaponBodyList;
     [SerializeField] private Weapon currentWeapon;
 
-    private Coroutine _rotateWeaponToOriginalCoroutine;
+    private Coroutine _resetWeaponRotationCoroutine;
+    private bool _hasInitializedCloneWeapon;
     
     private void Awake()
     {
@@ -22,6 +25,16 @@ public class WeaponAttachmentSystem : MonoBehaviour
         Instance = this;
     }
 
+    // TODO: Fix that this not working to instantiate clone weapon
+    private void Update()
+    {
+        if (!_hasInitializedCloneWeapon)
+        {
+            SelectWeapon(currentWeapon);
+            _hasInitializedCloneWeapon = true;
+        }
+    }
+
     public List<Weapon> GetWeaponBodyList => weaponBodyList;
     public Weapon GetCurrentWeapon => currentWeapon;
 
@@ -29,9 +42,9 @@ public class WeaponAttachmentSystem : MonoBehaviour
     {
         if (weapon.GetDisplayName() == currentWeapon.GetDisplayName())
         {
-            if (_rotateWeaponToOriginalCoroutine == null)
+            if (_resetWeaponRotationCoroutine == null)
             {
-                _rotateWeaponToOriginalCoroutine = StartCoroutine(RotateWeaponToOriginalRoutine());
+                _resetWeaponRotationCoroutine = StartCoroutine(ResetWeaponRotationRoutine());
             }
             return;
         }
@@ -42,6 +55,8 @@ public class WeaponAttachmentSystem : MonoBehaviour
         
         Destroy(currentWeapon.gameObject);
         currentWeapon = spawnedWeapon;
+        
+        OnWeaponModified?.Invoke();
     }
     
     public void SetPart(Weapon.PartType partType)
@@ -55,6 +70,8 @@ public class WeaponAttachmentSystem : MonoBehaviour
                 currentWeapon.SetPart(Weapon.PartType.Handle);
                 break;
         }
+        
+        OnWeaponModified?.Invoke();
     }
     
     public int GetNextIndex(int currentIndex, int count)
@@ -74,14 +91,14 @@ public class WeaponAttachmentSystem : MonoBehaviour
         return currentIndex + 1;
     }
 
-    private IEnumerator RotateWeaponToOriginalRoutine()
+    private IEnumerator ResetWeaponRotationRoutine()
     {
         float rotateSpeed = 5f;
         while (Quaternion.Angle(currentWeapon.transform.localRotation, Quaternion.identity) > 1f)
         {
             if (Input.GetMouseButton(0))
             {
-                _rotateWeaponToOriginalCoroutine = null;
+                _resetWeaponRotationCoroutine = null;
                 yield break;
             }
             
@@ -97,6 +114,6 @@ public class WeaponAttachmentSystem : MonoBehaviour
 
         currentWeapon.transform.localRotation = Quaternion.identity;
 
-        _rotateWeaponToOriginalCoroutine = null;
+        _resetWeaponRotationCoroutine = null;
     }
 }

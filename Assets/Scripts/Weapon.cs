@@ -21,13 +21,24 @@ public class Weapon : MonoBehaviour
         [HideInInspector] public GameObject spawnedPart;
     }
     
+    [Serializable]
+    public class WeaponAttachmentSlotSaveData
+    {
+        public string partType;
+        public int selectedIndex;
+        public string selectedPartName;
+    }
+    
     [SerializeField] private string displayName;
     [SerializeField] private List<WeaponAttachmentSlot> attachmentSlotList;
 
+    private MouseRotate _mouseRotate;
     private readonly Dictionary<PartType, WeaponAttachmentSlot> _attachmentSlotDict = new();
 
     private void Awake()
     {
+        _mouseRotate = GetComponent<MouseRotate>();
+        
         foreach (var attachmentSlot in attachmentSlotList)
         {
             _attachmentSlotDict[attachmentSlot.partType] = attachmentSlot;
@@ -36,6 +47,8 @@ public class Weapon : MonoBehaviour
     }
     
     public string GetDisplayName() => displayName;
+    
+    public void DisableMouseRotate() => _mouseRotate.enabled = false;
 
     public void SetPart(PartType partType)
     {
@@ -56,11 +69,7 @@ public class Weapon : MonoBehaviour
                 attachmentSlot.currentIndex, _attachmentSlotDict[partType].acceptedWeaponPartSOList.Count
             );
         
-        if (attachmentSlot.currentIndex == -1)
-        {
-            Debug.LogWarning($"Current weapon has no accepted weapon part with type {partType}");
-            return;
-        }
+        if (attachmentSlot.currentIndex == -1) return;
 
         WeaponPartSO weaponPartS0 = attachmentSlot.acceptedWeaponPartSOList[attachmentSlot.currentIndex];
         attachmentSlot.spawnedPart = Instantiate(weaponPartS0.prefab, attachmentSlot.attachPoint);
@@ -81,5 +90,30 @@ public class Weapon : MonoBehaviour
         }
         
         attachmentSlot.spawnedPart.transform.localRotation = Quaternion.identity;
+    }
+    
+    public List<WeaponAttachmentSlotSaveData> GetAttachmentSaveDataList()
+    {
+        List<WeaponAttachmentSlotSaveData> attachmentSaveDataList = new();
+
+        foreach (var attachmentSlot in attachmentSlotList)
+        {
+            string selectedPartName = string.Empty;
+            if (attachmentSlot.currentIndex >= 0 &&
+                attachmentSlot.currentIndex < attachmentSlot.acceptedWeaponPartSOList.Count)
+            {
+                WeaponPartSO weaponPartSO = attachmentSlot.acceptedWeaponPartSOList[attachmentSlot.currentIndex];
+                selectedPartName = weaponPartSO.displayName;
+            }
+            
+            attachmentSaveDataList.Add(new WeaponAttachmentSlotSaveData
+            {
+                partType = attachmentSlot.partType.ToString(),
+                selectedIndex = attachmentSlot.currentIndex,
+                selectedPartName = selectedPartName
+            });
+        }
+
+        return attachmentSaveDataList;
     }
 }

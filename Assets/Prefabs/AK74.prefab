@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8364484230934417987}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ScopeAttachPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 6615255239804016533}
   - component: {fileID: 7517571103191606195}
   - component: {fileID: 19008256389274506}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: ScopeButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 2531873072103703918}
   - component: {fileID: 9165054484795705696}
   - component: {fileID: 7667506197241030997}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: HandleButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -314,7 +314,7 @@ GameObject:
   - component: {fileID: 5340667813209522339}
   - component: {fileID: 2044375871445022694}
   - component: {fileID: 2309712280414605806}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: WeaponPartUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -431,7 +431,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 93658967990982133}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HandleAttachPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -462,7 +462,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1712276895902329749}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AttachPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -497,7 +497,7 @@ GameObject:
   - component: {fileID: 6091126849867755164}
   - component: {fileID: 8784846587417455037}
   - component: {fileID: 5616439268609760301}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -636,7 +636,7 @@ GameObject:
   - component: {fileID: 72547648172919698}
   - component: {fileID: 2301383373042313527}
   - component: {fileID: 490225937237198132}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -846,9 +846,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 671829171048778515}
     m_Modifications:
+    - target: {fileID: 1324608018887474, guid: ee329c3cd08e58645834d20702d7f6c6, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1452442627303592, guid: ee329c3cd08e58645834d20702d7f6c6, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 1487774384131766, guid: ee329c3cd08e58645834d20702d7f6c6, type: 3}
       propertyPath: m_Name
       value: AK74
+      objectReference: {fileID: 0}
+    - target: {fileID: 1487774384131766, guid: ee329c3cd08e58645834d20702d7f6c6, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927369336514790, guid: ee329c3cd08e58645834d20702d7f6c6, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4519716788627816, guid: ee329c3cd08e58645834d20702d7f6c6, type: 3}
       propertyPath: m_LocalPosition.x
