@@ -31,14 +31,14 @@ public class SavedWeaponButtonListUI : MonoBehaviour
             Destroy(childGameObject);
         }
         
-        List<WeaponSaveSystem.WeaponSaveData> weaponSaveDataList = WeaponSaveSystem.Instance.Load();
+        List<WeaponSaveSystem.WeaponSaveData> weaponSaveDataList = WeaponSaveSystem.Instance.GetCurrentWeaponSaveDataList;
         foreach (var weaponSaveData in weaponSaveDataList)
         {
             if (!WeaponSaveSystem.Instance.TryLoadScreenshotSprite(weaponSaveData, out Sprite sprite))
                 continue;
             
             SavedWeaponButtonUI savedWeaponButtonUI = Instantiate(buttonTemplate, transform);
-            savedWeaponButtonUI.SetSprite(sprite);
+            savedWeaponButtonUI.Initialize(weaponSaveData, sprite);
             savedWeaponButtonUI.gameObject.SetActive(true);
         }
     }

@@ -9,7 +9,7 @@ public class WeaponAttachmentSystem : MonoBehaviour
 
     public event Action OnWeaponModified;
     
-    [SerializeField] private List<Weapon> weaponBodyList;
+    [SerializeField] private List<Weapon> weaponList;
     [SerializeField] private Weapon currentWeapon;
 
     private Coroutine _resetWeaponRotationCoroutine;
@@ -35,8 +35,14 @@ public class WeaponAttachmentSystem : MonoBehaviour
         }
     }
 
-    public List<Weapon> GetWeaponBodyList => weaponBodyList;
+    public List<Weapon> GetWeaponList => weaponList;
     public Weapon GetCurrentWeapon => currentWeapon;
+
+    public void LoadWeaponSave(WeaponSaveSystem.WeaponSaveData weaponSaveData)
+    {
+        SelectWeaponByDisplayName(weaponSaveData.weaponDisplayName);
+        ApplyAttachmentSaveData(weaponSaveData.attachments);
+    }
 
     public void SelectWeapon(Weapon weapon)
     {
@@ -49,12 +55,7 @@ public class WeaponAttachmentSystem : MonoBehaviour
             return;
         }
         
-        Weapon spawnedWeapon = Instantiate(weapon, currentWeapon.transform.parent);
-        spawnedWeapon.transform.localPosition = currentWeapon.transform.localPosition;
-        spawnedWeapon.transform.localRotation = Quaternion.identity;
-        
-        Destroy(currentWeapon.gameObject);
-        currentWeapon = spawnedWeapon;
+        SpawnWeapon(weapon);
         
         OnWeaponModified?.Invoke();
     }
@@ -91,6 +92,46 @@ public class WeaponAttachmentSystem : MonoBehaviour
         return currentIndex + 1;
     }
 
+    private void SelectWeaponByDisplayName(string displayName)
+    {
+        foreach (var weapon in weaponList)
+        {
+            if (weapon.GetDisplayName() != displayName) continue;
+            
+            SpawnWeapon(weapon);
+            return;
+        }
+        
+        Debug.LogWarning($"No weapon found with display name: {displayName}");
+    }
+
+    private void ApplyAttachmentSaveData(Weapon.WeaponAttachmentSlotSaveData[] weaponAttachmentSlotSaveDataArray)
+    {
+        foreach (var weaponAttachmentSlotSaveData in weaponAttachmentSlotSaveDataArray)
+        {
+            if (!Enum.TryParse(weaponAttachmentSlotSaveData.partType, out Weapon.PartType partType))
+            {
+                Debug.LogWarning($"Invalid part type: {weaponAttachmentSlotSaveData.partType}");
+                continue;
+            }
+            
+            currentWeapon.SetPartByIndex(partType, weaponAttachmentSlotSaveData.selectedIndex);
+        }
+        
+        OnWeaponModified?.Invoke();
+    }
+
+    private void SpawnWeapon(Weapon weapon)
+    {
+        Weapon spawnedWeapon = Instantiate(weapon, currentWeapon.transform.parent);
+        spawnedWeapon.transform.localPosition = currentWeapon.transform.localPosition;
+        spawnedWeapon.transform.localRotation = Quaternion.identity;
+        
+        Destroy(currentWeapon.gameObject);
+        
+        currentWeapon = spawnedWeapon;
+    }
+    
     private IEnumerator ResetWeaponRotationRoutine()
     {
         float rotateSpeed = 5f;

@@ -57,37 +57,49 @@ public class Weapon : MonoBehaviour
             Debug.LogWarning($"No attachment slot with type {partType} found");
             return;
         }
+
+        int nextIndex = WeaponAttachmentSystem.Instance.GetNextIndex
+            (
+                attachmentSlot.currentIndex, 
+                _attachmentSlotDict[partType].acceptedWeaponPartSOList.Count
+            );
+
+        SetPartByIndex(partType, nextIndex);
+    }
+
+    public void SetPartByIndex(PartType partType, int selectedIndex)
+    {
+        // Find attachment slot by partType
+        if (!_attachmentSlotDict.TryGetValue(partType, out var attachmentSlot))
+        {
+            Debug.LogWarning($"No attachment slot with type {partType} found");
+            return;
+        }
         
+        // Destroy old spawned part if it exists
         if (attachmentSlot.spawnedPart != null)
         {
             Destroy(attachmentSlot.spawnedPart);
             attachmentSlot.spawnedPart = null;
         }
 
-        attachmentSlot.currentIndex = WeaponAttachmentSystem.Instance.GetNextIndex
-            (
-                attachmentSlot.currentIndex, _attachmentSlotDict[partType].acceptedWeaponPartSOList.Count
-            );
+        attachmentSlot.currentIndex = selectedIndex;
         
-        if (attachmentSlot.currentIndex == -1) return;
+        if (attachmentSlot.currentIndex == -1) 
+            return;
+        
+        if (attachmentSlot.currentIndex >= attachmentSlot.acceptedWeaponPartSOList.Count)
+        {
+            Debug.LogWarning($"Index {selectedIndex} is out of range");
+            return;
+        }
 
+        // Spawn acceptedWeaponPartSOList[selectedIndex]
         WeaponPartSO weaponPartS0 = attachmentSlot.acceptedWeaponPartSOList[attachmentSlot.currentIndex];
         attachmentSlot.spawnedPart = Instantiate(weaponPartS0.prefab, attachmentSlot.attachPoint);
 
-        if (weaponPartS0.weaponOffsets.Count > 0)
-        {
-            foreach (var weaponOffsetEntry in weaponPartS0.weaponOffsets)
-            {
-                if (weaponOffsetEntry.weapon.GetDisplayName() == displayName)
-                {
-                    attachmentSlot.spawnedPart.transform.localPosition = weaponOffsetEntry.offset;
-                }
-            }
-        }
-        else
-        {
-            attachmentSlot.spawnedPart.transform.localPosition = Vector3.zero;
-        }
+        // Apply offsets
+        ApplyPartOffset(attachmentSlot.spawnedPart, weaponPartS0);
         
         attachmentSlot.spawnedPart.transform.localRotation = Quaternion.identity;
     }
@@ -115,5 +127,23 @@ public class Weapon : MonoBehaviour
         }
 
         return attachmentSaveDataList;
+    }
+
+    private void ApplyPartOffset(GameObject spawnedPart, WeaponPartSO weaponPartSO)
+    {
+        if (weaponPartSO.weaponOffsets.Count > 0)
+        {
+            foreach (var weaponOffsetEntry in weaponPartSO.weaponOffsets)
+            {
+                if (weaponOffsetEntry.weapon.GetDisplayName() == displayName)
+                {
+                    spawnedPart.transform.localPosition = weaponOffsetEntry.offset;
+                }
+            }
+        }
+        else
+        {
+            spawnedPart.transform.localPosition = Vector3.zero;
+        }
     }
 }

@@ -8,7 +8,7 @@ public class WeaponSelectorUI : MonoBehaviour
     {
         selectionButtonTemplate.gameObject.SetActive(false);
         
-        foreach (var weapon in WeaponAttachmentSystem.Instance.GetWeaponBodyList)
+        foreach (var weapon in WeaponAttachmentSystem.Instance.GetWeaponList)
         {
             WeaponSelectionButtonUI weaponSelectionSelectionButtonUI = Instantiate(selectionButtonTemplate, transform);
             

@@ -565,7 +565,7 @@ GameObject:
   - component: {fileID: 1917085865822534833}
   - component: {fileID: 7187235200496832927}
   m_Layer: 0
-  m_Name: WeaponPartUI
+  m_Name: WeaponAttachmentSlotsUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

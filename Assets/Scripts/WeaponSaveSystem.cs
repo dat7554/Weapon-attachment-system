@@ -29,7 +29,11 @@ public class WeaponSaveSystem : MonoBehaviour
     private string _savesFolderPath;
     private string _weaponScreenshotsFolderPath;
 
+    private List<WeaponSaveData> _currentWeaponSaveDataList;
+
     private Coroutine _refreshWeaponCloneCoroutine;
+    
+    public List<WeaponSaveData> GetCurrentWeaponSaveDataList => _currentWeaponSaveDataList;
     
     private void Awake()
     {
@@ -44,6 +48,8 @@ public class WeaponSaveSystem : MonoBehaviour
         
         _savesFolderPath = Path.Combine(Application.persistentDataPath, "Saves");
         _weaponScreenshotsFolderPath = Path.Combine(Application.persistentDataPath, "WeaponScreenshots");
+        
+        _currentWeaponSaveDataList = LoadAllWeaponSaveData();
     }
     
     private void Start()
@@ -85,23 +91,23 @@ public class WeaponSaveSystem : MonoBehaviour
         SaveScreenshotFile(screenshotFilePath, screenshotBytes);
         SaveJsonFile(jsonFilePath, weaponSaveData);
         
+        _currentWeaponSaveDataList = LoadAllWeaponSaveData();
+        
         OnWeaponSaved?.Invoke();
     }
 
-    public List<WeaponSaveData> Load()
+    public void LoadWeapon(string saveId)
     {
-        List<WeaponSaveData> weaponSaveDataList = new List<WeaponSaveData>();
-        
-        if (!CanLoadSaves())
-            return weaponSaveDataList;
-        
-        foreach (string jsonFilePath in GetJsonFilePaths())
+        foreach (var weaponSaveData in _currentWeaponSaveDataList)
         {
-            WeaponSaveData weaponSaveData = LoadSaveDataFromJson(jsonFilePath);
-            weaponSaveDataList.Add(weaponSaveData);
+            if (weaponSaveData.saveId != saveId) 
+                continue; 
+            
+            WeaponAttachmentSystem.Instance.LoadWeaponSave(weaponSaveData);
+            return;
         }
-
-        return weaponSaveDataList;
+        
+        Debug.LogWarning($"No weapon save data found with id: {saveId}");
     }
     
     public bool TryLoadScreenshotSprite(WeaponSaveData weaponSaveData, out Sprite sprite)
@@ -131,6 +137,26 @@ public class WeaponSaveSystem : MonoBehaviour
         
         sprite = CreateSpriteFromTexture(screenshotTexture);
         return true;
+    }
+    
+    private List<WeaponSaveData> LoadAllWeaponSaveData()
+    {
+        List<WeaponSaveData> weaponSaveDataList = new List<WeaponSaveData>();
+        
+        if (!CanLoadSaves())
+        {
+            _currentWeaponSaveDataList = weaponSaveDataList;
+            return weaponSaveDataList;
+        }
+        
+        foreach (string jsonFilePath in GetJsonFilePaths())
+        {
+            WeaponSaveData weaponSaveData = LoadSaveDataFromJson(jsonFilePath);
+            weaponSaveDataList.Add(weaponSaveData);
+        }
+
+        _currentWeaponSaveDataList = weaponSaveDataList;
+        return weaponSaveDataList;
     }
 
     private string CreateSaveId(Weapon weapon, string currentTime)

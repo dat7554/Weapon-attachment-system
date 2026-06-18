@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WeaponPartUI : MonoBehaviour
+public class WeaponAttachmentSlotsUI : MonoBehaviour
 {
     [Serializable]
     private class WeaponPartButton
