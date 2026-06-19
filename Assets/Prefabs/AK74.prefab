@@ -811,6 +811,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
   displayName: AK74
+  weaponAttachmentSlotsUI: {fileID: 2309712280414605806}
   attachmentSlotList:
   - partType: 0
     attachPoint: {fileID: 8364484230934417987}

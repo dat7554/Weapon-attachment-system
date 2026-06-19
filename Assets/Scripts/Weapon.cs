@@ -30,6 +30,7 @@ public class Weapon : MonoBehaviour
     }
     
     [SerializeField] private string displayName;
+    [SerializeField] private WeaponAttachmentSlotsUI weaponAttachmentSlotsUI;
     [SerializeField] private List<WeaponAttachmentSlot> attachmentSlotList;
 
     private MouseRotate _mouseRotate;
@@ -48,15 +49,14 @@ public class Weapon : MonoBehaviour
     
     public string GetDisplayName() => displayName;
     
+    public void EnableMouseRotate() => _mouseRotate.enabled = true;
+    
     public void DisableMouseRotate() => _mouseRotate.enabled = false;
 
     public void SetPart(PartType partType)
     {
-        if (!_attachmentSlotDict.TryGetValue(partType, out var attachmentSlot))
-        {
-            Debug.LogWarning($"No attachment slot with type {partType} found");
+        if (!TryGetAttachmentSlot(partType, out WeaponAttachmentSlot attachmentSlot))
             return;
-        }
 
         int nextIndex = WeaponAttachmentSystem.Instance.GetNextIndex
             (
@@ -69,19 +69,10 @@ public class Weapon : MonoBehaviour
 
     public void SetPartByIndex(PartType partType, int selectedIndex)
     {
-        // Find attachment slot by partType
-        if (!_attachmentSlotDict.TryGetValue(partType, out var attachmentSlot))
-        {
-            Debug.LogWarning($"No attachment slot with type {partType} found");
+        if (!TryGetAttachmentSlot(partType, out WeaponAttachmentSlot attachmentSlot))
             return;
-        }
         
-        // Destroy old spawned part if it exists
-        if (attachmentSlot.spawnedPart != null)
-        {
-            Destroy(attachmentSlot.spawnedPart);
-            attachmentSlot.spawnedPart = null;
-        }
+        ClearSpawnedPart(attachmentSlot);
 
         attachmentSlot.currentIndex = selectedIndex;
         
@@ -93,15 +84,11 @@ public class Weapon : MonoBehaviour
             Debug.LogWarning($"Index {selectedIndex} is out of range");
             return;
         }
-
-        // Spawn acceptedWeaponPartSOList[selectedIndex]
+        
         WeaponPartSO weaponPartS0 = attachmentSlot.acceptedWeaponPartSOList[attachmentSlot.currentIndex];
         attachmentSlot.spawnedPart = Instantiate(weaponPartS0.prefab, attachmentSlot.attachPoint);
 
-        // Apply offsets
         ApplyPartOffset(attachmentSlot.spawnedPart, weaponPartS0);
-        
-        attachmentSlot.spawnedPart.transform.localRotation = Quaternion.identity;
     }
     
     public List<WeaponAttachmentSlotSaveData> GetAttachmentSaveDataList()
@@ -111,8 +98,8 @@ public class Weapon : MonoBehaviour
         foreach (var attachmentSlot in attachmentSlotList)
         {
             string selectedPartName = string.Empty;
-            if (attachmentSlot.currentIndex >= 0 &&
-                attachmentSlot.currentIndex < attachmentSlot.acceptedWeaponPartSOList.Count)
+            
+            if (IsValidPartIndex(attachmentSlot, attachmentSlot.currentIndex))
             {
                 WeaponPartSO weaponPartSO = attachmentSlot.acceptedWeaponPartSOList[attachmentSlot.currentIndex];
                 selectedPartName = weaponPartSO.displayName;
@@ -128,7 +115,35 @@ public class Weapon : MonoBehaviour
 
         return attachmentSaveDataList;
     }
+    
+    public void ShowAttachmentSlotsUI() => weaponAttachmentSlotsUI.gameObject.SetActive(true);
+    
+    public void HideAttachmentSlotsUI() => weaponAttachmentSlotsUI.gameObject.SetActive(false);
 
+    private bool TryGetAttachmentSlot(PartType partType, out WeaponAttachmentSlot attachmentSlot)
+    {
+        if (_attachmentSlotDict.TryGetValue(partType, out attachmentSlot))
+            return true;
+
+        Debug.LogWarning($"No attachment slot with type {partType} found");
+        return false;
+    }
+    
+    private void ClearSpawnedPart(WeaponAttachmentSlot attachmentSlot)
+    {
+        if (attachmentSlot.spawnedPart == null)
+            return;
+
+        Destroy(attachmentSlot.spawnedPart);
+        attachmentSlot.spawnedPart = null;
+    }
+    
+    private bool IsValidPartIndex(WeaponAttachmentSlot attachmentSlot, int selectedIndex)
+    {
+        return selectedIndex >= 0 &&
+               selectedIndex < attachmentSlot.acceptedWeaponPartSOList.Count;
+    }
+    
     private void ApplyPartOffset(GameObject spawnedPart, WeaponPartSO weaponPartSO)
     {
         if (weaponPartSO.weaponOffsets.Count > 0)
@@ -145,5 +160,7 @@ public class Weapon : MonoBehaviour
         {
             spawnedPart.transform.localPosition = Vector3.zero;
         }
+        
+        spawnedPart.transform.localRotation = Quaternion.identity;
     }
 }

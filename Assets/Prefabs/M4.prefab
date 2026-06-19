@@ -352,6 +352,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
   displayName: M4
+  weaponAttachmentSlotsUI: {fileID: 7187235200496832927}
   attachmentSlotList:
   - partType: 0
     attachPoint: {fileID: 9165717621577573689}
