@@ -1,97 +1,104 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class WeaponBuilderUI : MonoBehaviour
 {
-    private enum Mode
+    public enum Mode
     {
-        Browse,
-        Modify
+        WeaponSelection,
+        Modify,
+        Loadout,
+        AttachmentSelection
     }
     
-    [SerializeField] private Button modifyButton;
-    [SerializeField] private Button backToBrowseButton;
-    [SerializeField] private Button saveButton;
+    [SerializeField] private WeaponBuilderPanelsUI panelsUI;
+    [SerializeField] private WeaponBuilderWeaponViewUI weaponViewUI;
 
     [SerializeField] private WeaponSelectorUI weaponSelectorUI;
     [SerializeField] private SavedWeaponButtonListUI savedWeaponButtonListUI;
-    
-    [SerializeField] private Vector3 browseWeaponEulerAngles = new (0f, 40f, 0f);
+    [SerializeField] private WeaponAttachmentSelectorUI weaponAttachmentSelectorUI;
     
     private Mode _currentMode;
-    
-    private void Awake()
-    {
-        modifyButton.onClick.AddListener(() => SetMode(Mode.Modify));
-        backToBrowseButton.onClick.AddListener(() => SetMode(Mode.Browse));
-    }
+    private Weapon.PartType _selectedPartType;
 
     private void Start()
     {
-        WeaponAttachmentSystem.Instance.OnWeaponModified += WeaponAttachmentSystem_OnWeaponModified;
+        panelsUI.OnEnterModifyClicked += HandleEnterModifyClicked;
+        panelsUI.OnModifyTabClicked += HandleModifyTabClicked;
+        panelsUI.OnLoadoutTabClicked += HandleLoadoutTabClicked;
+        panelsUI.OnBackClicked += HandleBackButtonClicked;
         
-        SetMode(Mode.Browse);
+        weaponSelectorUI.OnWeaponSelected += WeaponSelectorUI_OnWeaponSelected;
+        WeaponAttachmentSystem.Instance.OnWeaponChanged += WeaponAttachmentSystem_OnWeaponChanged;
+        WeaponAttachmentSlotsUI.OnAttachmentSlotSelected += WeaponAttachmentSlotsUI_OnAttachmentSlotSelected;
+        
+        SetMode(Mode.WeaponSelection);
     }
-    
+
     private void OnDestroy()
     {
+        panelsUI.OnEnterModifyClicked -= HandleEnterModifyClicked;
+        panelsUI.OnModifyTabClicked -= HandleModifyTabClicked;
+        panelsUI.OnLoadoutTabClicked -= HandleLoadoutTabClicked;
+        panelsUI.OnBackClicked -= HandleBackButtonClicked;
         
-        WeaponAttachmentSystem.Instance.OnWeaponModified -= WeaponAttachmentSystem_OnWeaponModified;
+        weaponSelectorUI.OnWeaponSelected -= WeaponSelectorUI_OnWeaponSelected;
+        WeaponAttachmentSystem.Instance.OnWeaponChanged -= WeaponAttachmentSystem_OnWeaponChanged;
+        WeaponAttachmentSlotsUI.OnAttachmentSlotSelected -= WeaponAttachmentSlotsUI_OnAttachmentSlotSelected;
     }
     
-    private void WeaponAttachmentSystem_OnWeaponModified()
+    private void HandleEnterModifyClicked() => SetMode(Mode.Modify);
+
+    private void HandleModifyTabClicked() => SetMode(Mode.Modify);
+
+    private void HandleLoadoutTabClicked() => SetMode(Mode.Loadout);
+    
+    private void HandleBackButtonClicked()
     {
-        ApplyCurrentModeToWeapon();
+        switch (_currentMode)
+        {
+            case Mode.AttachmentSelection:
+                SetMode(Mode.Modify);
+                return;
+            
+            case Mode.Modify:
+            case Mode.Loadout:
+                SetMode(Mode.WeaponSelection);
+                break;
+        }
+    }
+
+    private void WeaponSelectorUI_OnWeaponSelected(Weapon weapon) => WeaponAttachmentSystem.Instance.SelectWeapon(weapon);
+    
+    private void WeaponAttachmentSystem_OnWeaponChanged() => ApplyCurrentModeToWeapon();
+    
+    private void WeaponAttachmentSlotsUI_OnAttachmentSlotSelected(Weapon.PartType partType)
+    {
+        _selectedPartType = partType;
+        weaponAttachmentSelectorUI.RefreshButtons(partType);
+        SetMode(Mode.AttachmentSelection);
     }
     
     private void SetMode(Mode mode)
     {
         _currentMode = mode;
-
-        ApplyModeToPanels();
+        
+        RefreshModeData();
+        panelsUI.ApplyMode(_currentMode);
         ApplyCurrentModeToWeapon();
     }
-
-    private void ApplyModeToPanels()
+    
+    private void RefreshModeData()
     {
-        bool isBrowseMode = _currentMode == Mode.Browse;
-        
-        modifyButton.gameObject.SetActive(isBrowseMode);
-        weaponSelectorUI.gameObject.SetActive(isBrowseMode);
-        savedWeaponButtonListUI.gameObject.SetActive(isBrowseMode);
+        if (_currentMode != Mode.Loadout)
+            return;
 
-        backToBrowseButton.gameObject.SetActive(!isBrowseMode);
-        saveButton.gameObject.SetActive(!isBrowseMode);
+        string weaponDisplayName = WeaponAttachmentSystem.Instance.GetCurrentWeapon.GetDisplayName();
+        savedWeaponButtonListUI.RefreshButtons(weaponDisplayName);
     }
-
+    
     private void ApplyCurrentModeToWeapon()
     {
         Weapon currentWeapon = WeaponAttachmentSystem.Instance.GetCurrentWeapon;
-
-        switch (_currentMode)
-        {
-            case Mode.Browse:
-                ApplyBrowseModeToWeapon(currentWeapon);
-                break;
-            case Mode.Modify:
-                ApplyModifyModeToWeapon(currentWeapon);
-                break;
-        }
-    }
-    
-    private void ApplyBrowseModeToWeapon(Weapon weapon)
-    {
-        weapon.HideAttachmentSlotsUI();
-        weapon.DisableMouseRotate();
-
-        WeaponAttachmentSystem.Instance.RotateCurrentWeaponTo(browseWeaponEulerAngles);
-    }
-
-    private void ApplyModifyModeToWeapon(Weapon weapon)
-    {
-        weapon.ShowAttachmentSlotsUI();
-        weapon.EnableMouseRotate();
-
-        WeaponAttachmentSystem.Instance.RotateCurrentWeaponTo(Vector3.zero);
+        weaponViewUI.ApplyMode(_currentMode, currentWeapon, _selectedPartType);
     }
 }

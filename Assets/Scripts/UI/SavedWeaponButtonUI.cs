@@ -8,17 +8,12 @@ public class SavedWeaponButtonUI : MonoBehaviour
     
     private WeaponSaveSystem.WeaponSaveData _weaponSaveData;
 
-    public void Initialize(WeaponSaveSystem.WeaponSaveData weaponSaveData, Sprite sprite)
+    public void Initialize(WeaponSaveSystem.WeaponSaveData weaponSaveData, Sprite sprite, UnityEngine.Events.UnityAction<WeaponSaveSystem.WeaponSaveData> onClick)
     {
         _weaponSaveData = weaponSaveData;
         savedWeaponImage.sprite = sprite;
         
         button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(LoadSavedWeapon);
-    }
-
-    private void LoadSavedWeapon()
-    {
-        WeaponSaveSystem.Instance.LoadWeapon(_weaponSaveData.saveId);
+        button.onClick.AddListener(() => onClick?.Invoke(_weaponSaveData));
     }
 }

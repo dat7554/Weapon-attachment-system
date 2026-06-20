@@ -48,28 +48,34 @@ public class Weapon : MonoBehaviour
     }
     
     public string GetDisplayName() => displayName;
+
+    public bool TryGetAcceptedWeaponPartsFromPartType(PartType partType, out List<WeaponPartSO> acceptedWeaponPartSOList)
+    {
+        acceptedWeaponPartSOList = null;
+
+        if (!TryGetAttachmentSlotFromPartType(partType, out var attachmentSlot))
+            return false;
+
+
+        acceptedWeaponPartSOList = attachmentSlot.acceptedWeaponPartSOList;
+        return true;
+    }
     
     public void EnableMouseRotate() => _mouseRotate.enabled = true;
     
     public void DisableMouseRotate() => _mouseRotate.enabled = false;
 
-    public void SetPart(PartType partType)
+    public int GetSelectedPartIndex(PartType partType)
     {
-        if (!TryGetAttachmentSlot(partType, out WeaponAttachmentSlot attachmentSlot))
-            return;
-
-        int nextIndex = WeaponAttachmentSystem.Instance.GetNextIndex
-            (
-                attachmentSlot.currentIndex, 
-                _attachmentSlotDict[partType].acceptedWeaponPartSOList.Count
-            );
-
-        SetPartByIndex(partType, nextIndex);
+        if (!TryGetAttachmentSlotFromPartType(partType, out var attachmentSlot))
+            return -1;
+        
+        return attachmentSlot.currentIndex;
     }
-
+    
     public void SetPartByIndex(PartType partType, int selectedIndex)
     {
-        if (!TryGetAttachmentSlot(partType, out WeaponAttachmentSlot attachmentSlot))
+        if (!TryGetAttachmentSlotFromPartType(partType, out WeaponAttachmentSlot attachmentSlot))
             return;
         
         ClearSpawnedPart(attachmentSlot);
@@ -120,7 +126,7 @@ public class Weapon : MonoBehaviour
     
     public void HideAttachmentSlotsUI() => weaponAttachmentSlotsUI.gameObject.SetActive(false);
 
-    private bool TryGetAttachmentSlot(PartType partType, out WeaponAttachmentSlot attachmentSlot)
+    private bool TryGetAttachmentSlotFromPartType(PartType partType, out WeaponAttachmentSlot attachmentSlot)
     {
         if (_attachmentSlotDict.TryGetValue(partType, out attachmentSlot))
             return true;

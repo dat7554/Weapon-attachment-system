@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class WeaponAttachmentSlotsUI : MonoBehaviour
 {
+    public static event Action<Weapon.PartType> OnAttachmentSlotSelected;
+    
     [Serializable]
     private class WeaponPartButton
     {
@@ -20,7 +22,8 @@ public class WeaponAttachmentSlotsUI : MonoBehaviour
         {
             weaponPartButton.button.onClick.AddListener
                 (
-                    () => WeaponAttachmentSystem.Instance.SetPart(weaponPartButton.partType)
+                    //() => WeaponAttachmentSystem.Instance.SetPart(weaponPartButton.partType)
+                    () => OnAttachmentSlotSelected?.Invoke(weaponPartButton.partType)
                 );
         }
     }

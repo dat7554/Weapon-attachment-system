@@ -1,23 +1,63 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class WeaponSelectorUI : MonoBehaviour
 {
-    [SerializeField] private WeaponSelectionButtonUI selectionButtonTemplate;
+    public event Action<Weapon> OnWeaponSelected;
+    
+    [SerializeField] private Transform contentTransform;
+    [SerializeField] private WeaponSelectionButtonUI buttonTemplate;
+    
+    private void Awake()
+    {
+        buttonTemplate.gameObject.SetActive(false);
+    }
     
     private void Start()
     {
-        selectionButtonTemplate.gameObject.SetActive(false);
+        RefreshButtons();
+    }
+
+    private void RefreshButtons()
+    {
+        ClearButtons();
         
-        foreach (var weapon in WeaponAttachmentSystem.Instance.GetWeaponList)
+        List<Weapon> weaponList = WeaponAttachmentSystem.Instance.GetWeaponList;
+        
+        for (int i = 0; i < weaponList.Count; i++)
         {
-            WeaponSelectionButtonUI weaponSelectionSelectionButtonUI = Instantiate(selectionButtonTemplate, transform);
+            Weapon weapon = weaponList[i];
             
-            weaponSelectionSelectionButtonUI.gameObject.SetActive(true);
-            weaponSelectionSelectionButtonUI.SetButtonText(weapon.GetDisplayName());
-            weaponSelectionSelectionButtonUI.GetButton().onClick.AddListener
+            WeaponSelectionButtonUI button = Instantiate(buttonTemplate, contentTransform);
+            
+            bool isSelected = WeaponAttachmentSystem.Instance.GetCurrentWeapon.GetDisplayName() == weapon.GetDisplayName();
+            
+            button.Initialize
             (
-                () => WeaponAttachmentSystem.Instance.SelectWeapon(weapon)
+                weapon,
+                isSelected,
+                () =>
+                {
+                    OnWeaponSelected?.Invoke(weapon);
+                    RefreshButtons();
+                }
             );
+            
+            button.gameObject.SetActive(true);
+        }
+    }
+    
+    private void ClearButtons()
+    {
+        for (int i = 0; i < contentTransform.childCount; i++)
+        {
+            GameObject childGameObject = contentTransform.GetChild(i).gameObject;
+            
+            if (childGameObject == buttonTemplate.gameObject)
+                continue;
+            
+            Destroy(childGameObject);
         }
     }
 }

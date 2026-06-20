@@ -9,7 +9,7 @@ public class WeaponSaveSystem : MonoBehaviour
 {
     public static WeaponSaveSystem Instance;
     
-    public event Action OnWeaponSaved;
+    public event Action<string> OnWeaponSaved;
     
     [Serializable]
     public class WeaponSaveData
@@ -54,12 +54,14 @@ public class WeaponSaveSystem : MonoBehaviour
     
     private void Start()
     {
-        WeaponAttachmentSystem.Instance.OnWeaponModified += WeaponAttachmentSystem_OnWeaponModified;
+        WeaponAttachmentSystem.Instance.OnWeaponVisualChanged += WeaponAttachmentSystem_OnWeaponVisualChanged;
+        SavedWeaponButtonListUI.OnSavedWeaponSelected += SavedWeaponButtonListUIOnOnSavedWeaponSelected;
     }
 
     private void OnDestroy()
     {
-        WeaponAttachmentSystem.Instance.OnWeaponModified -= WeaponAttachmentSystem_OnWeaponModified;
+        WeaponAttachmentSystem.Instance.OnWeaponVisualChanged -= WeaponAttachmentSystem_OnWeaponVisualChanged;
+        SavedWeaponButtonListUI.OnSavedWeaponSelected -= SavedWeaponButtonListUIOnOnSavedWeaponSelected;
     }
 
     public void Save()
@@ -93,7 +95,14 @@ public class WeaponSaveSystem : MonoBehaviour
         
         _currentWeaponSaveDataList = LoadAllWeaponSaveData();
         
-        OnWeaponSaved?.Invoke();
+        OnWeaponSaved?.Invoke(weaponSaveData.weaponDisplayName);
+    }
+
+    public List<WeaponSaveData> GetSaveDataListForWeapon(string weaponDisplayName)
+    {
+        return _currentWeaponSaveDataList
+            .Where(saveData => saveData.weaponDisplayName == weaponDisplayName)
+            .ToList();
     }
 
     public void LoadWeapon(string saveId)
@@ -173,6 +182,7 @@ public class WeaponSaveSystem : MonoBehaviour
             Directory.CreateDirectory(_savesFolderPath);
     }
 
+    // TODO: current Cinemachine adaption has made this screenshot not working as intended
     private byte[] CaptureScreenshotAsPng()
     {
         RenderTexture renderTexture = new RenderTexture(
@@ -291,7 +301,12 @@ public class WeaponSaveSystem : MonoBehaviour
         );
     }
     
-    private void WeaponAttachmentSystem_OnWeaponModified()
+    private void SavedWeaponButtonListUIOnOnSavedWeaponSelected(WeaponSaveData weaponSaveData)
+    {
+        LoadWeapon(weaponSaveData.saveId);
+    }
+    
+    private void WeaponAttachmentSystem_OnWeaponVisualChanged()
     {
         if (_refreshWeaponCloneCoroutine != null)
             StopCoroutine(_refreshWeaponCloneCoroutine);

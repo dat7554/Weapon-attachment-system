@@ -7,7 +7,9 @@ public class WeaponAttachmentSystem : MonoBehaviour
 {
     public static WeaponAttachmentSystem Instance;
 
-    public event Action OnWeaponModified;
+    public event Action OnWeaponChanged;
+    public event Action<Weapon.PartType> OnWeaponAttachmentModified;
+    public event Action OnWeaponVisualChanged;
     
     [SerializeField] private List<Weapon> weaponList;
     [SerializeField] private Weapon currentWeapon;
@@ -29,7 +31,8 @@ public class WeaponAttachmentSystem : MonoBehaviour
 
     private void Start()
     {
-        NotifyWeaponModified();
+        NotifyWeaponChanged();
+        NotifyWeaponVisualChanged();
     }
 
     public void SelectWeapon(Weapon weapon)
@@ -38,7 +41,9 @@ public class WeaponAttachmentSystem : MonoBehaviour
             return;
         
         SpawnWeapon(weapon);
-        NotifyWeaponModified();
+        
+        NotifyWeaponChanged();
+        NotifyWeaponVisualChanged();
     }
     
     public void LoadWeaponSave(WeaponSaveSystem.WeaponSaveData weaponSaveData)
@@ -48,13 +53,17 @@ public class WeaponAttachmentSystem : MonoBehaviour
         
         SpawnWeapon(weapon);
         ApplyAttachmentSaveData(weaponSaveData.attachments);
-        NotifyWeaponModified();
+        
+        NotifyWeaponChanged();
+        NotifyWeaponVisualChanged();
     }
     
-    public void SetPart(Weapon.PartType partType)
+    public void SetPartByIndex(Weapon.PartType partType, int selectedIndex)
     {
-        currentWeapon.SetPart(partType);
-        NotifyWeaponModified();
+        currentWeapon.SetPartByIndex(partType, selectedIndex);
+        
+        NotifyWeaponAttachmentModified(partType);
+        NotifyWeaponVisualChanged();
     }
     
     public void RotateCurrentWeaponTo(Vector3 eulerAngles)
@@ -124,5 +133,9 @@ public class WeaponAttachmentSystem : MonoBehaviour
         }
     }
     
-    private void NotifyWeaponModified() => OnWeaponModified?.Invoke();
+    private void NotifyWeaponChanged() => OnWeaponChanged?.Invoke();
+
+    private void NotifyWeaponAttachmentModified(Weapon.PartType partType) => OnWeaponAttachmentModified?.Invoke(partType);
+    
+    private void NotifyWeaponVisualChanged() => OnWeaponVisualChanged?.Invoke();
 }
