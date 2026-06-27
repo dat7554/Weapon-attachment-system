@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class WeaponBuilderPanelsUI : MonoBehaviour
@@ -17,7 +18,7 @@ public class WeaponBuilderPanelsUI : MonoBehaviour
     [SerializeField] private Button saveButton;
 
     [SerializeField] private WeaponSelectorUI weaponSelectorUI;
-    [SerializeField] private SavedWeaponButtonListUI savedWeaponButtonListUI;
+    [SerializeField] private SavedWeaponSelectorUI savedWeaponSelectorUI;
     [SerializeField] private WeaponAttachmentSelectorUI weaponAttachmentSelectorUI;
     
     [SerializeField] private TextMeshProUGUI modeTitleText;
@@ -47,7 +48,7 @@ public class WeaponBuilderPanelsUI : MonoBehaviour
         loadoutTabButton.gameObject.SetActive(showTabs);
 
         saveButton.gameObject.SetActive(isModify);
-        savedWeaponButtonListUI.gameObject.SetActive(isLoadout);
+        savedWeaponSelectorUI.gameObject.SetActive(isLoadout);
         weaponAttachmentSelectorUI.gameObject.SetActive(isAttachmentSelection);
 
         backButton.gameObject.SetActive(!isWeaponSelection);

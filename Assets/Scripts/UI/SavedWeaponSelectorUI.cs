@@ -1,17 +1,26 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class SavedWeaponButtonListUI : MonoBehaviour
+public class SavedWeaponSelectorUI : MonoBehaviour
 {
     public static event Action<WeaponSaveSystem.WeaponSaveData> OnSavedWeaponSelected;
     
+    [SerializeField] private Transform contentTransform;
     [SerializeField] private SavedWeaponButtonUI buttonTemplate;
+    
+    private ScrollRect _scrollRect;
 
+    private void Awake()
+    {
+        _scrollRect = GetComponent<ScrollRect>();
+        
+        buttonTemplate.gameObject.SetActive(false);
+    }
+    
     private void Start()
     {
-        buttonTemplate.gameObject.SetActive(false);
-
         WeaponSaveSystem.Instance.OnWeaponSaved += RefreshButtons;
     }
 
@@ -30,7 +39,7 @@ public class SavedWeaponButtonListUI : MonoBehaviour
             if (!WeaponSaveSystem.Instance.TryLoadScreenshotSprite(weaponSaveData, out Sprite sprite))
                 continue;
             
-            SavedWeaponButtonUI savedWeaponButtonUI = Instantiate(buttonTemplate, transform);
+            SavedWeaponButtonUI savedWeaponButtonUI = Instantiate(buttonTemplate, contentTransform);
             
             savedWeaponButtonUI.Initialize
                 (
@@ -41,18 +50,26 @@ public class SavedWeaponButtonListUI : MonoBehaviour
             
             savedWeaponButtonUI.gameObject.SetActive(true);
         }
+        
+        ResetScrollPosition();
     }
 
     private void ClearButtons()
     {
-        for (int i = 0; i < transform.childCount; i++)
+        for (int i = 0; i < contentTransform.childCount; i++)
         {
-            GameObject childGameObject = transform.GetChild(i).gameObject;
+            GameObject childGameObject = contentTransform.GetChild(i).gameObject;
             
             if (childGameObject == buttonTemplate.gameObject)
                 continue;
             
             Destroy(childGameObject);
         }
+    }
+    
+    private void ResetScrollPosition()
+    {
+        Canvas.ForceUpdateCanvases();
+        _scrollRect.verticalNormalizedPosition = 1f;
     }
 }

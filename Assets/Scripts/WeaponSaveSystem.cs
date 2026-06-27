@@ -54,13 +54,13 @@ public class WeaponSaveSystem : MonoBehaviour
     private void Start()
     {
         WeaponAttachmentSystem.Instance.OnWeaponVisualChanged += WeaponAttachmentSystem_OnWeaponVisualChanged;
-        SavedWeaponButtonListUI.OnSavedWeaponSelected += SavedWeaponButtonListUIOnOnSavedWeaponSelected;
+        SavedWeaponSelectorUI.OnSavedWeaponSelected += SavedWeaponButtonListUIOnOnSavedWeaponSelected;
     }
 
     private void OnDestroy()
     {
         WeaponAttachmentSystem.Instance.OnWeaponVisualChanged -= WeaponAttachmentSystem_OnWeaponVisualChanged;
-        SavedWeaponButtonListUI.OnSavedWeaponSelected -= SavedWeaponButtonListUIOnOnSavedWeaponSelected;
+        SavedWeaponSelectorUI.OnSavedWeaponSelected -= SavedWeaponButtonListUIOnOnSavedWeaponSelected;
     }
 
     public void Save()

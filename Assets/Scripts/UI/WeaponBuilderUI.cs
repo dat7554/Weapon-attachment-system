@@ -14,7 +14,7 @@ public class WeaponBuilderUI : MonoBehaviour
     [SerializeField] private WeaponBuilderWeaponViewUI weaponViewUI;
 
     [SerializeField] private WeaponSelectorUI weaponSelectorUI;
-    [SerializeField] private SavedWeaponButtonListUI savedWeaponButtonListUI;
+    [SerializeField] private SavedWeaponSelectorUI savedWeaponSelectorUI;
     [SerializeField] private WeaponAttachmentSelectorUI weaponAttachmentSelectorUI;
     
     private Mode _currentMode;
@@ -93,7 +93,7 @@ public class WeaponBuilderUI : MonoBehaviour
             return;
 
         string weaponDisplayName = WeaponAttachmentSystem.Instance.GetCurrentWeapon.GetDisplayName();
-        savedWeaponButtonListUI.RefreshButtons(weaponDisplayName);
+        savedWeaponSelectorUI.RefreshButtons(weaponDisplayName);
     }
     
     private void ApplyCurrentModeToWeapon()
