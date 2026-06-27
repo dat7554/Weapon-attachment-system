@@ -21,11 +21,10 @@ public class WeaponSaveSystem : MonoBehaviour
         public Weapon.WeaponAttachmentSlotSaveData[] attachments;
     }
     
-    [SerializeField] private Camera weaponScreenshotCamera;
     [SerializeField] private Transform cloneContainerTransform;
-    [SerializeField] private int screenshotWidth = 1017;
-    [SerializeField] private int screenshotHeight = 550;
 
+    private WeaponScreenshotRenderer _weaponScreenshotRenderer;
+    
     private string _savesFolderPath;
     private string _weaponScreenshotsFolderPath;
 
@@ -43,8 +42,8 @@ public class WeaponSaveSystem : MonoBehaviour
         }
         
         Instance = this;
-        
-        weaponScreenshotCamera.enabled = false;
+
+        _weaponScreenshotRenderer = GetComponent<WeaponScreenshotRenderer>();
         
         _savesFolderPath = Path.Combine(Application.persistentDataPath, "Saves");
         _weaponScreenshotsFolderPath = Path.Combine(Application.persistentDataPath, "WeaponScreenshots");
@@ -73,7 +72,7 @@ public class WeaponSaveSystem : MonoBehaviour
         
         EnsureSaveFoldersExist();
         
-        byte[] screenshotBytes = CaptureScreenshotAsPng();
+        byte[] screenshotBytes = _weaponScreenshotRenderer.CaptureScreenshotAsPng();
         
         string weaponScreenshotFileName = $"{saveId}.png";
         string jsonFileName = $"{saveId}.json";
@@ -180,51 +179,6 @@ public class WeaponSaveSystem : MonoBehaviour
         
         if (!Directory.Exists(_savesFolderPath))
             Directory.CreateDirectory(_savesFolderPath);
-    }
-
-    // TODO: current Cinemachine adaption has made this screenshot not working as intended
-    private byte[] CaptureScreenshotAsPng()
-    {
-        RenderTexture renderTexture = new RenderTexture(
-            screenshotWidth,
-            screenshotHeight,
-            24,
-            RenderTextureFormat.ARGB32
-        );
-
-        RenderTexture previousActiveRenderTexture = RenderTexture.active;
-        RenderTexture previousCameraTargetTexture = weaponScreenshotCamera.targetTexture;
-
-        weaponScreenshotCamera.targetTexture = renderTexture;
-        RenderTexture.active = renderTexture;
-
-        weaponScreenshotCamera.Render();
-
-        Texture2D screenshotTexture = new Texture2D(
-            screenshotWidth,
-            screenshotHeight,
-            TextureFormat.RGBA32,
-            false
-        );
-
-        screenshotTexture.ReadPixels(
-            new Rect(0, 0, screenshotWidth, screenshotHeight),
-            0,
-            0
-        );
-
-        screenshotTexture.Apply();
-
-        byte[] screenshotBytes = screenshotTexture.EncodeToPNG();
-        
-        weaponScreenshotCamera.targetTexture = previousCameraTargetTexture;
-        RenderTexture.active = previousActiveRenderTexture;
-
-        renderTexture.Release();
-        Destroy(renderTexture);
-        Destroy(screenshotTexture);
-
-        return screenshotBytes;
     }
 
     private string GetScreenshotFilePath(string screenshotFileName) => Path.Combine(_weaponScreenshotsFolderPath, screenshotFileName);
