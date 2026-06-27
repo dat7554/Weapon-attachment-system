@@ -13,6 +13,7 @@ public class WeaponAttachmentCameraController : MonoBehaviour
     }
     
     [SerializeField] private CinemachineCamera defaultCamera;
+    [SerializeField] private CinemachineCamera weaponModifyCamera;
     [SerializeField] private List<AttachmentCamera> attachmentCameraList;
     
     [SerializeField] private int activePriority = 20;
@@ -28,6 +29,13 @@ public class WeaponAttachmentCameraController : MonoBehaviour
         SetAllCamerasInactive();
         
         defaultCamera.Priority = activePriority;
+    }
+
+    public void ShowWeaponModifyCamera()
+    {
+        SetAllCamerasInactive();
+
+        weaponModifyCamera.Priority = activePriority;
     }
     
     public void ShowAttachmentCamera(Weapon.PartType partType)
@@ -50,6 +58,7 @@ public class WeaponAttachmentCameraController : MonoBehaviour
     private void SetAllCamerasInactive()
     {
         defaultCamera.Priority = inactivePriority;
+        weaponModifyCamera.Priority = inactivePriority;
 
         foreach (var attachmentCamera in attachmentCameraList)
         {

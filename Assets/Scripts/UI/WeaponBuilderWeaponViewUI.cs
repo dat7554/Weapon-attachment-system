@@ -38,7 +38,7 @@ public class WeaponBuilderWeaponViewUI : MonoBehaviour
         weapon.ShowAttachmentSlotsUI();
         //weapon.EnableMouseRotate();
         
-        attachmentCameraController.ShowDefaultCamera();
+        attachmentCameraController.ShowWeaponModifyCamera();
         WeaponAttachmentSystem.Instance.RotateCurrentWeaponTo(Vector3.zero);
     }
 

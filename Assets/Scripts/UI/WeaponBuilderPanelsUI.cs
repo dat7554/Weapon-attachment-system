@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,9 @@ public class WeaponBuilderPanelsUI : MonoBehaviour
     [SerializeField] private SavedWeaponButtonListUI savedWeaponButtonListUI;
     [SerializeField] private WeaponAttachmentSelectorUI weaponAttachmentSelectorUI;
     
+    [SerializeField] private TextMeshProUGUI modeTitleText;
+    [SerializeField] private TextMeshProUGUI weaponNameText;
+    
     private void Awake()
     {
         enterModifyButton.onClick.AddListener(() => OnEnterModifyClicked?.Invoke());
@@ -27,7 +31,7 @@ public class WeaponBuilderPanelsUI : MonoBehaviour
         backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
     }
     
-    public void ApplyMode(WeaponBuilderUI.Mode mode)
+    public void ApplyMode(WeaponBuilderUI.Mode mode, Weapon.PartType selectedPartType)
     {
         bool isWeaponSelection = mode == WeaponBuilderUI.Mode.WeaponSelection;
         bool isModify = mode == WeaponBuilderUI.Mode.Modify;
@@ -47,5 +51,38 @@ public class WeaponBuilderPanelsUI : MonoBehaviour
         weaponAttachmentSelectorUI.gameObject.SetActive(isAttachmentSelection);
 
         backButton.gameObject.SetActive(!isWeaponSelection);
+        
+        // Text
+        modeTitleText.gameObject.SetActive(!isWeaponSelection);
+        modeTitleText.text = GetModeTitle(mode, selectedPartType);
+        
+        weaponNameText.gameObject.SetActive(isModify);
+        weaponNameText.text = GetWeaponName();
+    }
+    
+    private string GetModeTitle(WeaponBuilderUI.Mode mode, Weapon.PartType selectedPartType)
+    {
+        switch (mode)
+        {
+            case WeaponBuilderUI.Mode.Modify:
+            case WeaponBuilderUI.Mode.Loadout:
+                return "Gunsmith";
+
+            case WeaponBuilderUI.Mode.AttachmentSelection:
+                return selectedPartType.ToString();
+
+            default:
+                return string.Empty;
+        }
+    }
+    
+    private string GetWeaponName()
+    {
+        Weapon currentWeapon = WeaponAttachmentSystem.Instance.GetCurrentWeapon;
+
+        if (currentWeapon == null)
+            return string.Empty;
+
+        return currentWeapon.GetDisplayName();
     }
 }

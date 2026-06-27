@@ -83,7 +83,7 @@ public class WeaponBuilderUI : MonoBehaviour
         _currentMode = mode;
         
         RefreshModeData();
-        panelsUI.ApplyMode(_currentMode);
+        panelsUI.ApplyMode(_currentMode, _selectedPartType);
         ApplyCurrentModeToWeapon();
     }
     
